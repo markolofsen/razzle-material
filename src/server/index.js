@@ -9,6 +9,11 @@ import routes from '../common/routes';
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 const server = express();
 
+import {Helmet} from "react-helmet";
+import { Provider } from 'react-redux';
+import configureStore from '../common/store/configureStore';
+import serialize from 'serialize-javascript';
+
 
 const i18nextMiddleware = require('i18next-express-middleware'); // has no proper import yet
 import Backend from 'i18next-node-fs-backend';
@@ -38,7 +43,7 @@ i18n
 
       // First we iterate through our top level routes
       // looking for matches against the current url.
-      const matches = routes.map((route, index) => {
+        const matches = routes.map((route, index) => {
         const match = matchPath(req.url, route.path, route);
         // We then look for static getInitialData function on each top level component
         if (match) {
@@ -72,14 +77,22 @@ i18n
           //     <App routes={routes} initialData={data} />
           //   </StaticRouter>
           // );
+          //
+          // Create a new Redux store instance
+          const store = configureStore();
+          const finalState = store.getState();
 
           const markup = renderToString(
             <I18nextProvider i18n={req.i18n}>
-              <StaticRouter context={context} location={req.url}>
-                <App routes={routes} initialData={data} />
-              </StaticRouter>
+              <Provider store={store}>
+                <StaticRouter context={context} location={req.url}>
+                  <App routes={routes} initialData={data} />
+                </StaticRouter>
+              </Provider>
             </I18nextProvider>
           );
+
+          const helmet = Helmet.renderStatic();
 
           if (context.url) {
             res.redirect(context.url);
@@ -92,12 +105,21 @@ i18n
 
             res.status(context.statusCode || 200).send(
               `<!doctype html>
-            <html lang="">
+            <html ${helmet.htmlAttributes.toString()}>
             <head>
+
+                ${helmet.title.toString()}
+                ${helmet.meta.toString()}
+                ${helmet.link.toString()}
+
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
                 <meta charSet='utf-8' />
                 <title>Welcome to Razzle</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+                <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+                <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
                 ${assets.client.css
                   ? `<link rel="stylesheet" href="${assets.client.css}">`
                   : ''}
@@ -107,9 +129,12 @@ i18n
                   window.initialLanguage = '${initialLanguage}';
                 </script>
             </head>
-            <body>
+            <body ${helmet.bodyAttributes.toString()}>
                 <div id="root">${markup}</div>
-                <script>window._INITIAL_DATA_ = ${JSON.stringify(data)};</script>
+                <script>
+                  window.__PRELOADED_STATE__ = ${serialize(finalState)};
+                  window._INITIAL_DATA_ = ${JSON.stringify(data)};
+                </script>
             </body>
         </html>`
             );

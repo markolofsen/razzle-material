@@ -13,7 +13,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 
 import { connect } from 'react-redux';
-// import withSSR from '../withSSR';
+import withSSR from '../withSSR';
 
 import style from './theme.scss'
 
@@ -147,10 +147,16 @@ class MiniDrawer extends React.Component {
 	render() {
 		const {config, classes, theme} = this.props;
 
+		// console.log('here')
+		// console.log(this.props)
+		// let config = {
+		// 	menu_left: true,
+		// }
+
 		return (
 			<div className={classes.root}>
 				<AppBar position="fixed" className={classNames(classes.appBar)}>
-					<Toolbar disableGutters={!this.props.config.menu_left} className={classes.guttersWrapper}>
+					<Toolbar disableGutters={!config.menu_left} className={classes.guttersWrapper}>
 						<div className={classes.headerLogo}>
 							<IconButton color="inherit" aria-label="open drawer" onClick={this.handleDrawerOpen} className={classNames(classes.menuButton)}>
 								<Icon>menu_icon</Icon>
@@ -166,11 +172,11 @@ class MiniDrawer extends React.Component {
 						</div>
 					</Toolbar>
 				</AppBar>
-				<Drawer variant="permanent" data-menu-drawer={this.props.config.menu_left
+				<Drawer variant="permanent" data-menu-drawer={config.menu_left
 					? 'active'
 					: 'inactive'} classes={{
-					paper: classNames(classes.drawerPaper, !this.props.config.menu_left && classes.drawerPaperClose)
-				}} open={this.props.config.menu_left}>
+					paper: classNames(classes.drawerPaper, !config.menu_left && classes.drawerPaperClose)
+				}} open={config.menu_left}>
 
 					{true == false && <div className={classes.toolbar}>
 						<IconButton onClick={this.handleDrawerClose}>
@@ -202,6 +208,7 @@ MiniDrawer.propTypes = {
 
 
 // export default withSSR(MiniDrawer);
+// export default withStyles(styles, {withTheme: true})(MiniDrawer);
 
 export default connect((mapStateToProps) => (mapStateToProps), dispatch => ({
 	onToggleLeftMenu: (payload) => {

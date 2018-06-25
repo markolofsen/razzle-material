@@ -3,12 +3,14 @@ import withSSR from '../components/withSSR';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import {Helmet} from "react-helmet";
+
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import { translate, Trans } from 'react-i18next';
 import Loadable from 'react-loadable';
-// import NavWrapper from '../components/NavWrapper';
+import NavWrapper from '../components/NavWrapper';
 import axios from 'axios';
 
 
@@ -36,23 +38,23 @@ class Home extends React.Component {
   static getInitialData({ match, req, res }) {
     return new Promise((resolve, reject) => {
 
-      // axios.get('https://api.github.com/repos/ccxt/ccxt').then(res => {
-      //   resolve({
-      //     text: res.data.full_name,
-      //     currentRoute: match.pathname
-      //   })
-      // })
-
-      setTimeout(() => {
+      axios.get('https://data.ct.gov/resource/y6p2-px98.json?category=Fruit&item=Peaches').then(res => {
         resolve({
-          text: `
-This text is server rendered if and only if it's the initial render.
+          text: res.data[0].business,
+          currentRoute: match.pathname
+        })
+      })
 
-Go to another route.
-          `,
-          currentRoute: match.pathname,
-        });
-      }, 500);
+//       setTimeout(() => {
+//         resolve({
+//           text: `
+// This text is server rendered if and only if it's the initial render.
+//
+// Go to another route.
+//           `,
+//           currentRoute: match.pathname,
+//         });
+//       }, 500);
     });
   }
 
@@ -64,37 +66,52 @@ Go to another route.
     //   return 'Cool';
     // }
 
-    console.log(t('Welcome to Razzle'))
+    // console.log(t('Welcome to Razzle'))
+
 
     return (
-      <div>
+    	<div>
 
-        <h2>{t('Welcome to Razzle')}</h2>
+        <Helmet>
+            <meta charSet="utf-8" />
+            <title>My Title</title>
+            <link rel="canonical" href="http://mysite.com/example" />
+        </Helmet>
 
-        <Intro />
+    		<NavWrapper>
+    			<div>
 
-        <h1>Home</h1>
+    				<h2>{t('Welcome to Razzle')}</h2>
 
-        {isLoading && <div>Loading... </div>}
-        {error &&
-          <div style={{ color: 'red' }}>
-            {JSON.stringify(error, null, 2)}
-          </div>}
-        {text &&
-          <div>
-            ??{text}
-          </div>}
-      </div>
+    				<Intro/>
+
+    				<h1>Home</h1>
+
+    				{isLoading && <div>Loading...
+    				</div>}
+    				{error && <div style={{
+    					color: 'red'
+    				}}>
+    					{JSON.stringify(error, null, 2)}
+    				</div>}
+    				{text && <div>
+    					??{text}
+    				</div>}
+    			</div>
+
+    		</NavWrapper>
+    	</div>
     );
+
   }
 }
 
 Home.propTypes = {
-  // classes: PropTypes.object.isRequired,
-  // t: PropTypes.func.isRequired,
+  classes: PropTypes.object.isRequired,
+  t: PropTypes.func.isRequired,
 };
 
 // export default withStyles(styles)(withSSR(Home));
 
-// export default (translate('translations', { wait: process && !process.release })(withSSR(Home)));
-export default translate('translations', { wait: process && !process.release })(Home);
+export default (translate('translations', { wait: process && !process.release })(withStyles(styles)(withSSR(Home))));
+// export default translate('translations', { wait: process && !process.release })(Home);

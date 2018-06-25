@@ -11,6 +11,21 @@ module.exports = {
 		const appConfig = Object.assign({}, config);
 		const isServer = target !== 'web';
 
+
+		const postCssLoader = {
+			loader: 'postcss-loader',
+			options: {
+				ident: 'postcss', // https://webpack.js.org/guides/migrating/#complex-options
+				sourceMap: dev,
+				plugins: () => [autoprefixer({
+						browsers: [
+							'>1%', 'last 4 versions', 'Firefox ESR', 'not ie < 9' // React doesn't support IE8 anyway
+						]
+					})]
+			}
+		};
+
+		
 		// Import Resolving
 		// ====================
 		// Allow absolute paths in imports, e.g. import Button from 'components/Button'
@@ -63,102 +78,143 @@ module.exports = {
 			]
 		};
 
-		if (dev) {
-			appConfig.module.rules.push({
-				test: /\.scss$/,
-				use: isServer
-					? [
-						'isomorphic-style-loader', {
-							loader: require.resolve('css-loader'),
-							options: {
-								importLoaders: 1,
-								modules: true,
-								sourceMap: true,
-								localIdentName: '[name]__[local]--[hash:base64:5]'
-							}
-						}, {
-							loader: require.resolve('sass-loader'),
-							options: {
-								sourceMap: true
-							}
-						}
-					]
-					: [
-						require.resolve('style-loader'), {
-							loader: require.resolve('css-loader'),
-							options: {
-								importLoaders: 1,
-								modules: true,
-								localIdentName: '[name]__[local]--[hash:base64:5]',
-								sourceMap: true
-							}
-						}, {
-							loader: require.resolve('postcss-loader'),
-							options: postCSSLoaderOptions
-						}, {
-							loader: require.resolve('sass-loader'),
-							options: {
-								sourceMap: true
-							}
-						}
-					]
-			});
-		} else if (!dev && !isServer) {
-			appConfig.module.rules.push({
-				test: /\.scss$/,
-				use: ExtractTextPlugin.extract({
-					fallback: {
-						loader: require.resolve('style-loader'),
-						options: {
-							hmr: false
-						}
-					},
-					use: [
-						{
-							loader: require.resolve('css-loader'),
-							options: {
-								importLoaders: 1,
-								minimize: true,
-								sourceMap: true,
-								modules: true,
-								localIdentName: '[name]__[local]--[hash:base64:5]'
-							}
-						}, {
-							loader: require.resolve('postcss-loader'),
-							options: postCSSLoaderOptions
-						}, {
-							loader: require.resolve('sass-loader'),
-							options: {
-								sourceMap: true
-							}
-						}
-					]
-				})
-			});
+		appConfig.module.rules.push({
+			test: /.scss$/,
+			// Handle scss imports on the server
 
-			appConfig.plugins.push(new ExtractTextPlugin('static/css/[name].[contenthash:8].css'));
-		} else if (!dev && isServer) {
-			appConfig.module.rules.push({
-				test: /\.scss$/,
-				use: [
-					'isomorphic-style-loader', {
-						loader: require.resolve('css-loader'),
-						options: {
-							importLoaders: 1,
-							minimize: true,
-							sourceMap: true,
-							modules: true,
-							localIdentName: '[name]__[local]--[hash:base64:5]'
+			use: isServer
+				? ['css-loader', 'sass-loader']
+				: // For development, include source map
+				dev
+					? [
+						'style-loader', {
+							loader: 'css-loader',
+							options: {
+								sourceMap: true,
+								modules: true,
+								localIdentName: '[name]__[local]___[hash:base64:5]'
+							}
+						},
+						postCssLoader, {
+							loader: 'sass-loader',
+							options: {
+								sourceMap: true
+							}
 						}
-					}, {
-						loader: require.resolve('sass-loader'),
-						options: {
-							sourceMap: true
-						}
-					}
-				]
-			});
-		}
+					]
+					: // For production, extract CSS
+					ExtractTextPlugin.extract({
+						fallback: 'style-loader',
+						use: [
+							{
+								loader: 'css-loader',
+								options: {
+									importLoaders: 1,
+									modules: true
+								}
+							},
+							postCssLoader,
+							'sass-loader'
+						]
+					})
+		});
+
+		// if (dev) {
+		// 	appConfig.module.rules.push({
+		// 		test: /\.scss$/,
+		// 		use: isServer
+		// 			? [
+		// 				'isomorphic-style-loader', {
+		// 					loader: require.resolve('css-loader'),
+		// 					options: {
+		// 						importLoaders: 1,
+		// 						modules: true,
+		// 						sourceMap: true,
+		// 						localIdentName: '[name]__[local]--[hash:base64:5]'
+		// 					}
+		// 				}, {
+		// 					loader: require.resolve('sass-loader'),
+		// 					options: {
+		// 						sourceMap: true
+		// 					}
+		// 				}
+		// 			]
+		// 			: [
+		// 				require.resolve('style-loader'), {
+		// 					loader: require.resolve('css-loader'),
+		// 					options: {
+		// 						importLoaders: 1,
+		// 						modules: true,
+		// 						localIdentName: '[name]__[local]--[hash:base64:5]',
+		// 						sourceMap: true
+		// 					}
+		// 				}, {
+		// 					loader: require.resolve('postcss-loader'),
+		// 					options: postCSSLoaderOptions
+		// 				}, {
+		// 					loader: require.resolve('sass-loader'),
+		// 					options: {
+		// 						sourceMap: true
+		// 					}
+		// 				}
+		// 			]
+		// 	});
+		// } else if (!dev && !isServer) {
+		// 	appConfig.module.rules.push({
+		// 		test: /\.scss$/,
+		// 		use: ExtractTextPlugin.extract({
+		// 			fallback: {
+		// 				loader: require.resolve('style-loader'),
+		// 				options: {
+		// 					hmr: false
+		// 				}
+		// 			},
+		// 			use: [
+		// 				{
+		// 					loader: require.resolve('css-loader'),
+		// 					options: {
+		// 						importLoaders: 1,
+		// 						minimize: true,
+		// 						sourceMap: true,
+		// 						modules: true,
+		// 						localIdentName: '[name]__[local]--[hash:base64:5]'
+		// 					}
+		// 				}, {
+		// 					loader: require.resolve('postcss-loader'),
+		// 					options: postCSSLoaderOptions
+		// 				}, {
+		// 					loader: require.resolve('sass-loader'),
+		// 					options: {
+		// 						sourceMap: true
+		// 					}
+		// 				}
+		// 			]
+		// 		})
+		// 	});
+		//
+		// 	appConfig.plugins.push(new ExtractTextPlugin('static/css/[name].[contenthash:8].css'));
+		// } else if (!dev && isServer) {
+		// 	appConfig.module.rules.push({
+		// 		test: /\.scss$/,
+		// 		use: [
+		// 			'isomorphic-style-loader', {
+		// 				loader: require.resolve('css-loader'),
+		// 				options: {
+		// 					importLoaders: 1,
+		// 					minimize: true,
+		// 					sourceMap: true,
+		// 					modules: true,
+		// 					localIdentName: '[name]__[local]--[hash:base64:5]'
+		// 				}
+		// 			}, {
+		// 				loader: require.resolve('sass-loader'),
+		// 				options: {
+		// 					sourceMap: true
+		// 				}
+		// 			}
+		// 		]
+		// 	});
+		// }
 
 		// SVG Sprite
 		// ====================
