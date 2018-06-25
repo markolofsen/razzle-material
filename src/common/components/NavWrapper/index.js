@@ -13,6 +13,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 
 import { connect } from 'react-redux';
+// import withSSR from '../withSSR';
 
 import style from './theme.scss'
 
@@ -199,6 +200,8 @@ MiniDrawer.propTypes = {
 	theme: PropTypes.object.isRequired
 };
 
+
+// export default withSSR(MiniDrawer);
 
 export default connect((mapStateToProps) => (mapStateToProps), dispatch => ({
 	onToggleLeftMenu: (payload) => {

@@ -16,6 +16,23 @@ module.exports = {
 		// Allow absolute paths in imports, e.g. import Button from 'components/Button'
 		appConfig.resolve.modules.push('src', 'src/js', 'src/css', 'src/images');
 
+		// ESLint
+		// ====================
+		// appConfig.module.rules.push({
+		// 	enforce: 'pre',
+		// 	test: /\.js$/,
+		// 	exclude: /node_modules/,
+		// 	use: [
+		// 		{
+		// 			loader: 'eslint-loader',
+		// 			options: {
+		// 				emitWarning: true,
+		// 				configFile: '.eslintrc.js',
+		// 				quiet: true
+		// 			}
+		// 		}
+		// 	]
+		// });
 
 		// Babel
 		// ====================
@@ -27,7 +44,7 @@ module.exports = {
 					loader: 'babel-loader',
 					options: {
 						presets: ['razzle/babel'],
-						plugins: ['transform-react-jsx']
+						plugins: ['transform-react-jsx', 'transform-decorators-legacy']
 					}
 				}
 			]
@@ -163,3 +180,73 @@ module.exports = {
 		return appConfig;
 	}
 };
+
+// const autoprefixer = require('autoprefixer');
+// const ExtractTextPlugin = require('extract-text-webpack-plugin');
+//
+// module.exports = {
+// 	modify: (baseConfig, {target, dev}) => {
+// 		const appConfig = Object.assign({}, baseConfig);
+// 		const isServer = target !== 'web';
+//
+// 		const postCssLoader = {
+// 			loader: 'postcss-loader',
+// 			options: {
+// 				ident: 'postcss', // https://webpack.js.org/guides/migrating/#complex-options
+// 				sourceMap: dev,
+// 				plugins: () => [autoprefixer({
+// 						browsers: [
+// 							'>1%', 'last 4 versions', 'Firefox ESR', 'not ie < 9' // React doesn't support IE8 anyway
+// 						]
+// 					})]
+// 			}
+// 		};
+//
+// 		appConfig.module.rules.push({
+// 			test: /.scss$/,
+// 			// Handle scss imports on the server
+//
+// 			use: isServer
+// 				? ['css-loader', 'sass-loader']
+// 				: // For development, include source map
+// 				dev
+// 					? [
+// 						'style-loader', {
+// 							loader: 'css-loader',
+// 							options: {
+// 								sourceMap: true,
+// 								modules: true,
+// 								localIdentName: '[name]__[local]___[hash:base64:5]'
+// 							}
+// 						},
+// 						postCssLoader, {
+// 							loader: 'sass-loader',
+// 							options: {
+// 								sourceMap: true
+// 							}
+// 						}
+// 					]
+// 					: // For production, extract CSS
+// 					ExtractTextPlugin.extract({
+// 						fallback: 'style-loader',
+// 						use: [
+// 							{
+// 								loader: 'css-loader',
+// 								options: {
+// 									importLoaders: 1,
+// 									modules: true
+// 								}
+// 							},
+// 							postCssLoader,
+// 							'sass-loader'
+// 						]
+// 					})
+// 		});
+//
+// 		if (!isServer && !dev) {
+// 			appConfig.plugins.push(new ExtractTextPlugin('static/css/[name].[contenthash:8].css'));
+// 		}
+//
+// 		return appConfig;
+// 	}
+// };
