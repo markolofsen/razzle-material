@@ -214,4 +214,4 @@ export default connect((mapStateToProps) => (mapStateToProps), dispatch => ({
 	onToggleLeftMenu: (payload) => {
 		dispatch({type: 'LEFT_MENU_TOGGLE', payload})
 	}
-}))(withStyles(styles, {withTheme: true})(MiniDrawer));
+}))(withStyles(styles, {withTheme: true})(withSSR(MiniDrawer)));

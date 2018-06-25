@@ -1,5 +1,5 @@
 import React from 'react';
-import withSSR from '../components/withSSR';
+import withSSR from '../../components/withSSR';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -10,12 +10,14 @@ import Typography from '@material-ui/core/Typography';
 
 import { translate, Trans } from 'react-i18next';
 import Loadable from 'react-loadable';
-import NavWrapper from '../components/NavWrapper';
+import NavWrapper from '../../components/NavWrapper';
 import axios from 'axios';
 
 
+import ItemView from './ItemView/';
+
 const Intro = Loadable({
-  loader: () => import('./Intro'),
+  loader: () => import('../Intro'),
   loading: () => null,
 });
 
@@ -38,12 +40,19 @@ class Home extends React.Component {
   static getInitialData({ match, req, res }) {
     return new Promise((resolve, reject) => {
 
-      axios.get('https://data.ct.gov/resource/y6p2-px98.json?category=Fruit&item=Peaches').then(res => {
+      axios.get(`https://tenerifebook.com/api/catalog/tickets/list/false/?page=1`).then(res => {
         resolve({
-          text: res.data[0].business,
+          results: res.data.results,
           currentRoute: match.pathname
         })
       })
+
+      // axios.get('https://data.ct.gov/resource/y6p2-px98.json?category=Fruit&item=Peaches').then(res => {
+      //   resolve({
+      //     text: res.data[0].business,
+      //     currentRoute: match.pathname
+      //   })
+      // })
 
 //       setTimeout(() => {
 //         resolve({
@@ -59,7 +68,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { isLoading, text, error, classes } = this.props;
+    const { isLoading, results, error, classes } = this.props;
     const { t } = this.props;
 
     // function t(b) {
@@ -79,7 +88,7 @@ class Home extends React.Component {
         </Helmet>
 
     		<NavWrapper>
-          
+
     			<div data-content>
 
     				<h2>{t('Welcome')}</h2>
@@ -95,8 +104,14 @@ class Home extends React.Component {
     				}}>
     					{JSON.stringify(error, null, 2)}
     				</div>}
-    				{text && <div>
-    					??{text}
+    				{results && <div>
+    					{results.map((item, index) => {
+                return (
+                  <div>
+                    {item.title}
+                  </div>
+                )
+              })}
     				</div>}
     			</div>
 

@@ -1,5 +1,5 @@
 import About from './screens/About';
-import Home from './screens/Home';
+import Home from './screens/Home/';
 import Users from './screens/Users';
 
 // This is a static route configuration. It should include all of your top level
