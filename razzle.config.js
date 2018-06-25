@@ -25,7 +25,7 @@ module.exports = {
 			}
 		};
 
-		
+
 		// Import Resolving
 		// ====================
 		// Allow absolute paths in imports, e.g. import Button from 'components/Button'
