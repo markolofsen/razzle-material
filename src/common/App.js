@@ -1,4 +1,4 @@
-import './App.css';
+import './style/index.scss';
 
 import NavLink from 'react-router-dom/NavLink';
 import React from 'react';

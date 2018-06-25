@@ -47,10 +47,10 @@ ruble:after {
     padding: 20px;
 }
 [data-content-inner] {
-    @include screen(max, md) {
+    @media screen and (--md-max) {
         padding: 20px;
     }
-    @include screen(min, md) {
+    @media screen and (--md-min) {
         width: 90%;
         max-width: 1500px;
         margin: 0 auto;
@@ -122,10 +122,10 @@ h1,h2,h3,h4,h5,h6 {
     font-weight: var(--font-weight-thin);
     margin: 0;
     padding: 0;
-    @include screen(max, md) {
+    @media screen and (--md-max) {
         font-size: 30px;
     }
-    @include screen(min, md) {
+    @media screen and (--md-min) {
         font-size: 50px;
     }
 }
@@ -133,10 +133,10 @@ h1,h2,h3,h4,h5,h6 {
     font-weight: var(--font-weight-thin);
     margin: 0;
     padding: 0;
-    @include screen(max, md) {
+    @media screen and (--md-max) {
         font-size: 25px;
     }
-    @include screen(min, md) {
+    @media screen and (--md-min) {
         font-size: 40px;
     }
 }

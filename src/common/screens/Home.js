@@ -79,9 +79,10 @@ class Home extends React.Component {
         </Helmet>
 
     		<NavWrapper>
-    			<div>
+          
+    			<div data-content>
 
-    				<h2>{t('Welcome to Razzle')}</h2>
+    				<h2>{t('Welcome')}</h2>
 
     				<Intro/>
 

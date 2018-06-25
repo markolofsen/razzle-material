@@ -24,10 +24,10 @@ i18n
   .use(Backend)
   .use(i18nextMiddleware.LanguageDetector)
   .init({
-    preload: ['en', 'de'],
+    preload: ['en', 'de', 'ru'],
     backend: {
-      loadPath: __dirname + './../locales/{{lng}}/{{ns}}.json',
-      addPath: __dirname + './../locales/{{lng}}/{{ns}}.missing.json'
+      loadPath: __dirname + '/locales/{{lng}}/{{ns}}.json',
+      addPath: __dirname + '/locales/{{lng}}/{{ns}}.missing.json'
     }
   }, () => {
 
@@ -35,7 +35,7 @@ i18n
   server
     .disable('x-powered-by')
     .use(i18nextMiddleware.handle(i18n))
-    .use('/locales', express.static(__dirname + './../locales'))
+    .use('/locales', express.static(__dirname + '/locales'))
     .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
     .get('/*', (req, res) => {
       // This data fetching technique came from a gist by @ryanflorence
