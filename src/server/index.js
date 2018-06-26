@@ -20,6 +20,25 @@ import Backend from 'i18next-node-fs-backend';
 import i18n from '../i18n';
 import { I18nextProvider } from 'react-i18next';
 
+import {ServerStyleSheet} from 'styled-components';
+import compression from 'compression';
+import {minify} from 'html-minifier';
+import Application from '../common/App'
+
+
+
+// Workaround for Razzle's assets route issue in terms of static site genearation
+var clientCss = assets.client.css
+  , clientJs = assets.client.js
+
+if (process.env.NODE_ENV == 'production') {
+	if (clientCss)
+		clientCss = clientCss.replace('/', '')
+
+	clientJs = clientJs.replace('/', '')
+}
+
+
 i18n
   .use(Backend)
   .use(i18nextMiddleware.LanguageDetector)
@@ -38,6 +57,7 @@ i18n
     .use('/locales', express.static(__dirname + '/locales'))
     .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
     .get('/*', (req, res) => {
+
       // This data fetching technique came from a gist by @ryanflorence
       // @see https://gist.github.com/ryanflorence/efbe562332d4f1cc9331202669763741
 
@@ -82,15 +102,21 @@ i18n
           const store = configureStore();
           const finalState = store.getState();
 
-          const markup = renderToString(
-            <I18nextProvider i18n={req.i18n}>
-              <Provider store={store}>
-                <StaticRouter context={context} location={req.url}>
-                  <App routes={routes} initialData={data} />
-                </StaticRouter>
-              </Provider>
-            </I18nextProvider>
-          );
+          const htmlApp = <I18nextProvider i18n={req.i18n}>
+            <Provider store={store}>
+              <StaticRouter context={context} location={req.url}>
+                <App routes={routes} initialData={data} />
+              </StaticRouter>
+            </Provider>
+          </I18nextProvider>
+
+          const sheet = new ServerStyleSheet()
+      		, html = renderToString(sheet.collectStyles(htmlApp))
+      		, css = sheet.getStyleTags()
+
+          const markup = renderToString(htmlApp);
+
+
 
           const helmet = Helmet.renderStatic();
 
@@ -103,41 +129,49 @@ i18n
             });
             const initialLanguage = req.i18n.language;
 
-            res.status(context.statusCode || 200).send(
-              `<!doctype html>
-            <html ${helmet.htmlAttributes.toString()}>
-            <head>
+              res.status(context.statusCode || 200).send(minify(
+                `<!doctype html>
+                  <html ${helmet.htmlAttributes.toString()}>
+                  <head>
 
-                ${helmet.title.toString()}
-                ${helmet.meta.toString()}
-                ${helmet.link.toString()}
+                      ${helmet.title.toString()}
+                      ${helmet.meta.toString()}
+                      ${helmet.link.toString()}
 
-                <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-                <meta charSet='utf-8' />
-                <title>Welcome to Razzle</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1">
+                      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+                      <meta charSet='utf-8' />
+                      <title>Welcome to Razzle</title>
+                      <meta name="viewport" content="width=device-width, initial-scale=1">
 
-                <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
-                <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+                      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+                      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-                ${assets.client.css
-                  ? `<link rel="stylesheet" href="${assets.client.css}">`
-                  : ''}
-                <script src="${assets.client.js}" defer></script>
-                <script>
-                  window.initialI18nStore = JSON.parse('${JSON.stringify(initialI18nStore)}');
-                  window.initialLanguage = '${initialLanguage}';
-                </script>
-            </head>
-            <body ${helmet.bodyAttributes.toString()}>
-                <div id="root">${markup}</div>
-                <script>
-                  window.__PRELOADED_STATE__ = ${serialize(finalState)};
-                  window._INITIAL_DATA_ = ${JSON.stringify(data)};
-                </script>
-            </body>
-        </html>`
-            );
+                      ` + (clientCss ?
+                      	'<link rel="stylesheet" href="' + clientCss + '">' : ''
+                      ) + css + `
+
+                      <script defer src="` + clientJs + `"></script>
+
+                      <script>
+                        window.initialI18nStore = JSON.parse('${JSON.stringify(initialI18nStore)}');
+                        window.initialLanguage = '${initialLanguage}';
+                      </script>
+                  </head>
+
+                  <body ${helmet.bodyAttributes.toString()}>
+                      <div id="root">${markup}</div>
+                      <script>
+                        window.__PRELOADED_STATE__ = ${serialize(finalState)};
+                        window._INITIAL_DATA_ = ${JSON.stringify(data)};
+                      </script>
+                  </body>
+              </html>`, {
+          			collapseWhitespace: true
+          			, removeComments: true
+          			, minifyCSS: true
+          			, minifyJS: true
+          		}
+            ));
           }
         })
         .catch(error => {

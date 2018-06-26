@@ -107,7 +107,7 @@ class Home extends React.Component {
     				{results && <div>
     					{results.map((item, index) => {
                 return (
-                  <div>
+                  <div key={index}>
                     {item.title}
                   </div>
                 )
