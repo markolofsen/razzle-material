@@ -2,7 +2,8 @@ import React from 'react';
 import withSSR from '../../components/withSSR';
 
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+// import { withStyles } from '@material-ui/core/styles';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import {Helmet} from "react-helmet";
 
 import Paper from '@material-ui/core/Paper';
@@ -104,11 +105,11 @@ class Home extends React.Component {
     				}}>
     					{JSON.stringify(error, null, 2)}
     				</div>}
-    				{results && <div>
+    				{results == 'huy' && <div>
     					{results.map((item, index) => {
                 return (
                   <div key={index}>
-                    {item.title}
+                    <ItemView data={item} />
                   </div>
                 )
               })}

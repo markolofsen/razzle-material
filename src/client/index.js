@@ -33,12 +33,6 @@ import i18n from '../i18n';
 const data = window._INITIAL_DATA_;
 const store = configureStore(window.__PRELOADED_STATE__);
 
-// render(
-//   <BrowserRouter>
-//     <App routes={routes} initialData={data} />
-//   </BrowserRouter>,
-//   document.getElementById('root')
-// );
 
 hydrate(
   <I18nextProvider

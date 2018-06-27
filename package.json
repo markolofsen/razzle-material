@@ -22,6 +22,8 @@
     "i18next-node-fs-backend": "1.0.0",
     "i18next-xhr-backend": "1.4.2",
     "isomorphic-fetch": "^2.2.1",
+    "isomorphic-style-loader": "^4.0.0",
+    "material-ui-icons": "^1.0.0-beta.36",
     "moment": "^2.22.2",
     "node-sass": "^4.9.0",
     "postcss-loader": "^2.1.5",

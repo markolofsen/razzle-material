@@ -91,30 +91,20 @@ i18n
         .then(data => {
           const context = {};
 
-          // Pass our routes and data array to our App component
-          // const markup = renderToString(
-          //   <StaticRouter context={context} location={req.url}>
-          //     <App routes={routes} initialData={data} />
-          //   </StaticRouter>
-          // );
-          //
+
           // Create a new Redux store instance
           const store = configureStore();
           const finalState = store.getState();
 
-          const htmlApp = <I18nextProvider i18n={req.i18n}>
-            <Provider store={store}>
-              <StaticRouter context={context} location={req.url}>
-                <App routes={routes} initialData={data} />
-              </StaticRouter>
-            </Provider>
-          </I18nextProvider>
-
-          const sheet = new ServerStyleSheet()
-      		, html = renderToString(sheet.collectStyles(htmlApp))
-      		, css = sheet.getStyleTags()
-
-          const markup = renderToString(htmlApp);
+          const markup = renderToString(
+            <I18nextProvider i18n={req.i18n}>
+              <Provider store={store}>
+                <StaticRouter context={context} location={req.url}>
+                  <App routes={routes} initialData={data} />
+                </StaticRouter>
+              </Provider>
+            </I18nextProvider>
+          );
 
 
 
@@ -146,11 +136,11 @@ i18n
                       <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
                       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-                      ` + (clientCss ?
-                      	'<link rel="stylesheet" href="' + clientCss + '">' : ''
-                      ) + css + `
+                      ${assets.client.css
+                        ? `<link rel="stylesheet" href="${assets.client.css}">`
+                        : ''}
+                      <script src="${assets.client.js}" defer></script>
 
-                      <script defer src="` + clientJs + `"></script>
 
                       <script>
                         window.initialI18nStore = JSON.parse('${JSON.stringify(initialI18nStore)}');
@@ -166,10 +156,10 @@ i18n
                       </script>
                   </body>
               </html>`, {
-          			collapseWhitespace: true
-          			, removeComments: true
-          			, minifyCSS: true
-          			, minifyJS: true
+          			collapseWhitespace: false
+          			, removeComments: false
+          			, minifyCSS: false
+          			, minifyJS: false
           		}
             ));
           }

@@ -18,6 +18,7 @@ import NumberFormat from 'react-number-format';
 import {isBrowser, isMobile} from 'react-device-detect';
 
 import s from './theme.scss'
+import './theme.scss'
 
 const styles = {
 
@@ -43,7 +44,7 @@ class ItemView extends Component {
         }
 
         return (
-            <ul data-box className={classes.itemBox}>
+            <ul data-box class='itemBox'>
                 <li data-li="preview">
                     {data.image_preview &&
                         <Link to={routing_url}>
@@ -58,7 +59,7 @@ class ItemView extends Component {
                             <Typography variant="title">
                                 <Link to={routing_url} data-link>{data.title}</Link>
                             </Typography>
-                            {data.location ?
+                            {typeof data.location == 'string' ?
                                 <div data-el="location">
                                     <Icon>place</Icon>
                                     {data.location}
